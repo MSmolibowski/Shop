@@ -1,0 +1,92 @@
+﻿[
+  {
+    "Id": 1,
+    "Name": "E-reader Kindle",
+    "Description": "Czytnik e-booków od Amazon",
+    "CategoryIds": [ 1, 2 ]
+  },
+  {
+    "Id": 2,
+    "Name": "Smartwatch FitPro",
+    "Description": "Zegarek z pomiarem tętna i GPS",
+    "CategoryIds": [ 2, 3 ]
+  },
+  {
+    "Id": 3,
+    "Name": "Fotopułapka Leśna",
+    "Description": "Kamera do obserwacji przyrody",
+    "CategoryIds": [ 2, 3 ]
+  },
+  {
+    "Id": 4,
+    "Name": "Smartphone X9",
+    "Description": "Telefon z dużym wyświetlaczem",
+    "CategoryIds": [ 1, 2 ]
+  },
+  {
+    "Id": 5,
+    "Name": "Tablet Evad",
+    "Description": "Tablet do czytania i przeglądania sieci",
+    "CategoryIds": [ 1, 2 ]
+  },
+  {
+    "Id": 6,
+    "Name": "Komiks Marvel Avengers",
+    "Description": "Komiks z przygodami Avengersów",
+    "CategoryIds": [ 1, 2 ]
+  },
+  {
+    "Id": 7,
+    "Name": "Rower treningowy",
+    "Description": "Stacjonarny rower do ćwiczeń",
+    "CategoryIds": [ 2, 3 ]
+  },
+  {
+    "Id": 8,
+    "Name": "Słuchawki Bezprzewodowe Wave",
+    "Description": "Lepszy dźwięk bez kabli",
+    "CategoryIds": [ 2 ]
+  },
+  {
+    "Id": 9,
+    "Name": "Komiks Asterix",
+    "Description": "Przygody Asterixa i Obeliksa",
+    "CategoryIds": [ 1 ]
+  },
+  {
+    "Id": 10,
+    "Name": "Harry Potter i Kamień Filozoficzny",
+    "Description": "Pierwsza część kultowej serii",
+    "CategoryIds": [ 1 ]
+  },
+  {
+    "Id": 11,
+    "Name": "Czysty Kod",
+    "Description": "Przewodnik po dobrych praktykach",
+    "CategoryIds": [ 1 ]
+  },
+  {
+    "Id": 12,
+    "Name": "Władca Pierścieni",
+    "Description": "Epicka trylogia Tolkiena",
+    "CategoryIds": [ 1 ]
+  },
+  {
+    "Id": 13,
+    "Name": "Hantle żeliwne 5kg",
+    "Description": "Para hantli do ćwiczeń siłowych",
+    "CategoryIds": [ 3 ]
+  },
+  {
+    "Id": 14,
+    "Name": "Mata do jogi",
+    "Description": "Antypoślizgowa, gruba mata",
+    "CategoryIds": [ 3 ]
+  },
+  {
+    "Id": 15,
+    "Name": "Clean Architecture",
+    "Description": "Podręcznik architektury oprogramowania",
+    "CategoryIds": [ 1 ]
+  }
+]
