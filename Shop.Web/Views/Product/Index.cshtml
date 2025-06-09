@@ -1,0 +1,18 @@
+﻿@model IEnumerable<Shop.Core.Models.Entities.Product>
+
+<h1>Produkty</h1>
+<table class="table">
+    <thead>
+        <tr><th>Id</th><th>Nazwa</th><th>Opis</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.Id</td>
+                <td>@p.Name</td>
+                <td>@p.Description</td>
+            </tr>
+        }
+    </tbody>
+</table>
