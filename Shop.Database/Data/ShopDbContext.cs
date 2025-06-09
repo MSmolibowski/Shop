@@ -18,13 +18,13 @@ public class ShopDbContext : DbContext
             .HasMany(p => p.Categories)
             .WithMany(c => c.Products)
             .UsingEntity<Dictionary<string, object>>(
-                "ProductCategory",
-                j => j.HasOne<Category>().WithMany().HasForeignKey("CategoryId"),
-                j => j.HasOne<Product>().WithMany().HasForeignKey("ProductId"),
+                "product_category",
+                j => j.HasOne<Category>().WithMany().HasForeignKey("category_id"),
+                j => j.HasOne<Product>().WithMany().HasForeignKey("product_id"),
                 j =>
                 {
-                    j.HasKey("ProductId", "CategoryId");
-                    j.ToTable("ProductCategories");
+                    j.HasKey("product_id", "category_id");
+                    j.ToTable("product_categories");
                 });
     }
 }
