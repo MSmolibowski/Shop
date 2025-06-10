@@ -36,6 +36,21 @@ public class ProductController : ControllerBase
         }
     }
 
+    [HttpGet("GetProductsByCategoryName")]
+    public async Task<IActionResult> GetAllProductsByCategoryName([FromQuery] string categoryName)
+    {
+        try
+        {
+            var result = await this.productRepository.GetProductsByCategoryAsync(categoryName);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpPost("AddNewProduct")]
     public async Task<IActionResult> AddProductAsync([FromBody] ProductDto productDto)
     {

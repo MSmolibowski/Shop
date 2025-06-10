@@ -7,6 +7,7 @@ using Shop.Core.Models.Dto;
 using Shop.Core.Models.Entities;
 using Shop.Implementation.Utilities;
 using System.Data;
+using System.Data.Common;
 using System.Transactions;
 
 namespace Shop.Implementation.Repositories;
@@ -33,9 +34,15 @@ public class ProductRepository : IProductRepository
         return products;
     }
 
-    public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(string category)
+    public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(string categoryName)
     {
-        throw new NotImplementedException();
+        categoryName.ThrowIfNullOrEmpty();
+
+        var products = (await dbConnection.QueryAsync<Product>(
+                            PostSqlQuery.GET_PRODUCTS_BY_CATEGORY_NAME,
+                            new { CategoryName = categoryName })).ToList();
+
+        return products;
     }
 
     public async Task<Product> AddProductAsync(ProductDto productDto)
@@ -50,25 +57,23 @@ public class ProductRepository : IProductRepository
         try
         {
             var productId = await dbConnection.ExecuteScalarAsync<int>(
-                PostSqlQuery.INSERT_PRODUCT,
-                new { productDto.Name, productDto.Description },
-                transaction
-            );
+                                PostSqlQuery.INSERT_PRODUCT,
+                                new { productDto.Name, productDto.Description },
+                                transaction);
 
             var categoryIds = (await dbConnection.QueryAsync<int>(
-                PostSqlQuery.GET_CATEGORY_ID,
-                new { CategoryNames = productDto.Categories },
-                transaction
-            )).ToList();
+                                PostSqlQuery.GET_CATEGORY_ID,
+                                new { CategoryNames = productDto.Categories },
+                                transaction)).ToList();
+
             categoryIds.ThrowIfNullOrEmpty<List<int>>();
 
-            foreach (var catId in categoryIds) // maybe move to separate method.
+            foreach (var catId in categoryIds)
             {
                 await dbConnection.ExecuteAsync(
                     PostSqlQuery.INSERT_MAPPING,
                     new { ProductId = productId, CategoryId = catId },
-                    transaction
-                );
+                    transaction);
             }
 
             transaction.Commit();
@@ -112,13 +117,6 @@ public class ProductRepository : IProductRepository
             {
                 throw new ArgumentException($"No category as: {category}.");
             }
-        }
-
-
-        // Get All Categories
-        
-        // validation for provided category ?
+        }        
     }
-    // Delete category (separate file)
-    // 
 }
