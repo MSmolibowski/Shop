@@ -9,7 +9,7 @@ public class Product
     public int Id { get; set; }
 
     [Column("name")]
-    public string? Name { get; set; } = default!; // make it required in database
+    public string? Name { get; set; } = default!;
 
     [Column("description")]
     public string? Description { get; set; } = default!;

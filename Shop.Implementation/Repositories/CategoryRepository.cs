@@ -1,8 +1,13 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
+using Shop.Core.Exceptions;
+using Shop.Core.Extensions;
 using Shop.Core.Interfaces;
+using Shop.Core.Models.Dto;
 using Shop.Core.Models.Entities;
+using Shop.Implementation.Utilities;
 using System.Data;
+using System.Xml.Linq;
 
 namespace Shop.Implementation.Repositories;
 public class CategoryRepository : ICategoryRepository
@@ -21,17 +26,95 @@ public class CategoryRepository : ICategoryRepository
         this.dbConnection = dbConnection;
     }
 
-    public async Task<IEnumerable<string>> GetllAllCategories()
-    {
-        const string sql = @"Select name
-                             From category;";
-
-        var categories = await this.dbConnection.QueryAsync<string>(sql);
+    public async Task<IEnumerable<string>> GetllAllCategoriesAsync()
+    {        
+        var categories = await this.dbConnection.QueryAsync<string>(PostSqlQuery.GET_ALL_CATEGORY_NAMES);
         return categories;
     }
 
-    public Task DeleteCategoryAsync(string name)
+    public async Task<Category> AddCategoryAsync(CategoryDto categoryDto)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(categoryDto, nameof(categoryDto));
+        await CheckIfCategoryExist(categoryDto.Name);
+
+        if (dbConnection.State != ConnectionState.Open)
+        {
+            dbConnection.Open();
+        }
+
+        var category = await this.dbConnection.QuerySingleAsync<Category>(PostSqlQuery.INSERT_CATEGORY,
+                                                                                new { Name = categoryDto.Name, Description = categoryDto.Description });
+  
+        return category;
+
+    }
+
+    public async Task<int> DeleteCategoryAsync(string name)
+    {
+        name.ThrowIfNullOrEmpty();
+        var record = GetCategoryByNameAsync(name);
+
+        if (record == null) // do Extension method ?
+        {
+            throw new NotFoundException($"Category: {name}.");
+        }
+
+        if (dbConnection.State != ConnectionState.Open) // create extension method
+        {
+            dbConnection.Open();
+        }        
+
+        var id = await this.dbConnection.ExecuteScalarAsync<int>(PostSqlQuery.DELETE_CATEGORY_BY_NAME, new { Name = name });
+
+        return id;
+    }
+
+    private async Task CheckIfCategoryProductsExistAsync(string categoryName)
+    {
+        categoryName.ThrowIfNullOrEmpty();
+
+        if (dbConnection.State != ConnectionState.Open)
+        {
+            dbConnection.Open();
+        }
+
+        var products = await dbConnection.QueryAsync<Product>(PostSqlQuery.GET_PRODUCTS_BY_CATEGORY_NAME,
+                                                                new { CategoryName = categoryName });
+
+        if (products.Any())
+        {
+            throw new InvalidOperationException($"Products from category {categoryName} still in database. Remove products first.");
+        }
+    }
+
+    private async Task CheckIfCategoryExist(string categoryName)
+    {
+        categoryName.ThrowIfNullOrEmpty();
+
+        if (dbConnection.State != ConnectionState.Open)
+        {
+            dbConnection.Open();
+        }
+
+        var category = await GetCategoryByNameAsync(categoryName);
+
+        if (category != null)
+        {
+            throw new DuplicateNameException($"Category {categoryName} exist in database.");
+        }
+    }
+
+    private async Task<Category?> GetCategoryByNameAsync(string name)
+    {
+        name.ThrowIfNullOrEmpty();
+
+        if (dbConnection.State != ConnectionState.Open)
+        {
+            dbConnection.Open();
+        }
+
+        var category = await this.dbConnection.QuerySingleOrDefaultAsync<Category>(PostSqlQuery.GET_CATEGORY_BY_NAME, new { Name = name });
+
+        return category;
     }
 }

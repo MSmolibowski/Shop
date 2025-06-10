@@ -1,4 +1,5 @@
 using Npgsql;
+using Shop.Api;
 using Shop.Core.Interfaces;
 using Shop.Implementation.Repositories;
 using System.Data;
@@ -19,6 +20,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

@@ -7,66 +7,40 @@ namespace Shop.Api.Controllers;
 [ApiController]
 public class ProductController : ControllerBase
 {
-    ILogger<ProductController> logger;
     IProductRepository productRepository;
 
-    public ProductController(
-        ILogger<ProductController> logger,
-        IProductRepository productRepository)
+    public ProductController(IProductRepository productRepository)
     {
-        ArgumentNullException.ThrowIfNull(logger, nameof(logger));
         ArgumentNullException.ThrowIfNull(productRepository, nameof(productRepository));
 
-        this.logger = logger;
         this.productRepository = productRepository;
     }
 
     [HttpGet("GetAllProducts")]
     public async Task<IActionResult> GetAllProducts()
-    {
-        try
-        {
-            var result = await this.productRepository.GetAllAsync();
-
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+    { 
+        var result = await this.productRepository.GetAllAsync();
+        return Ok(result);
     }
 
     [HttpGet("GetProductsByCategoryName")]
     public async Task<IActionResult> GetAllProductsByCategoryName([FromQuery] string categoryName)
-    {
-        try
-        {
-            var result = await this.productRepository.GetProductsByCategoryAsync(categoryName);
-
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+    {               
+        var result = await this.productRepository.GetProductsByCategoryAsync(categoryName);
+        return Ok(result);
     }
 
     [HttpPost("AddNewProduct")]
     public async Task<IActionResult> AddProductAsync([FromBody] ProductDto productDto)
-    {
-        try
-        {
-            var result = await this.productRepository.AddProductAsync(productDto);
+    {        
+        var result = await this.productRepository.AddProductAsync(productDto);
+        return Ok(result);
+    }
 
-            return Ok(result);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+    [HttpDelete("DeleteProduct")]
+    public async Task<IActionResult> DeleteProductAsync([FromQuery] string name)
+    {
+        var result = await this.productRepository.DeleteProductAsync(name);
+        return Ok(result);
     }
 }

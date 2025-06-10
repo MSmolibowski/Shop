@@ -7,8 +7,6 @@ using Shop.Core.Models.Dto;
 using Shop.Core.Models.Entities;
 using Shop.Implementation.Utilities;
 using System.Data;
-using System.Data.Common;
-using System.Transactions;
 
 namespace Shop.Implementation.Repositories;
 public class ProductRepository : IProductRepository
@@ -38,42 +36,41 @@ public class ProductRepository : IProductRepository
     {
         categoryName.ThrowIfNullOrEmpty();
 
-        var products = (await dbConnection.QueryAsync<Product>(
-                            PostSqlQuery.GET_PRODUCTS_BY_CATEGORY_NAME,
-                            new { CategoryName = categoryName })).ToList();
+        var products = await dbConnection.QueryAsync<Product>(PostSqlQuery.GET_PRODUCTS_BY_CATEGORY_NAME,
+                                                                new { CategoryName = categoryName });
 
         return products;
-    }
+    }    
 
     public async Task<Product> AddProductAsync(ProductDto productDto)
     {
         ArgumentNullException.ThrowIfNull(productDto, nameof(productDto));
-        await ValidateProductDto(productDto);
+        await CheckIfProductExist(productDto.Name);
+        await CheckIfCategoriesExist(productDto);
 
         if (dbConnection.State != ConnectionState.Open)
+        {
             dbConnection.Open();
+        }
 
         using var transaction = dbConnection.BeginTransaction();
         try
         {
-            var productId = await dbConnection.ExecuteScalarAsync<int>(
-                                PostSqlQuery.INSERT_PRODUCT,
-                                new { productDto.Name, productDto.Description },
-                                transaction);
+            var productId = await dbConnection.ExecuteScalarAsync<int>(PostSqlQuery.INSERT_PRODUCT,
+                                                                        new { productDto.Name, productDto.Description },
+                                                                        transaction);
 
-            var categoryIds = (await dbConnection.QueryAsync<int>(
-                                PostSqlQuery.GET_CATEGORY_ID,
-                                new { CategoryNames = productDto.Categories },
-                                transaction)).ToList();
+            var categoryIds = await dbConnection.QueryAsync<int>(PostSqlQuery.GET_CATEGORY_ID,
+                                                                    new { CategoryNames = productDto.Categories },
+                                                                    transaction);
 
-            categoryIds.ThrowIfNullOrEmpty<List<int>>();
+            categoryIds.ThrowIfNullOrEmpty();
 
             foreach (var catId in categoryIds)
             {
-                await dbConnection.ExecuteAsync(
-                    PostSqlQuery.INSERT_MAPPING,
-                    new { ProductId = productId, CategoryId = catId },
-                    transaction);
+                await dbConnection.ExecuteAsync(PostSqlQuery.INSERT_MAPPING,
+                                                new { ProductId = productId, CategoryId = catId },
+                                                transaction);
             }
 
             transaction.Commit();
@@ -82,7 +79,7 @@ public class ProductRepository : IProductRepository
             {
                 Id = productId,
                 Name = productDto.Name,
-                Description = productDto.Description
+                Description = productDto.Description,
             };
         }
         catch
@@ -92,23 +89,27 @@ public class ProductRepository : IProductRepository
         }
     }
 
-    public async Task DeleteProductAsync(int id)
+    public async Task<int> DeleteProductAsync(string name)
     {
-        throw new NotImplementedException();
+        name.ThrowIfNullOrEmpty();
+        var record = await GetProductByNameAsync(name);
+
+        if (record == null)
+        {
+            throw new NotFoundException($"Product with name: {name}");
+        }
+
+        var id = await this.dbConnection.ExecuteScalarAsync<int>(PostSqlQuery.DELETE_PRODUCT_BY_NAME, new { Name = name });
+
+        return id;
     }
 
-    private async Task ValidateProductDto(ProductDto productDto)
+    private async Task CheckIfCategoriesExist(ProductDto productDto)
     {
         ArgumentNullException.ThrowIfNull(productDto, nameof(productDto));
-
-        var products = await this.GetAllAsync();
-        var categories = await this.categoryRepository.GetllAllCategories()
-                            ?? throw new NotFoundException(nameof(IEnumerable<string>));       // do better message to return 
-
-        if (products.Any(x => x.Name == productDto.Name))
-        {
-            throw new ArgumentException($"Product with this name exist. Provided name: {productDto.Name}");
-        }
+        
+        var categories = await this.categoryRepository.GetllAllCategoriesAsync()
+                            ?? throw new NotFoundException("List of categories.");
 
         foreach (string category in productDto.Categories)
         {
@@ -118,5 +119,26 @@ public class ProductRepository : IProductRepository
                 throw new ArgumentException($"No category as: {category}.");
             }
         }        
+    }
+
+    private async Task CheckIfProductExist(string name)
+    {
+        name.ThrowIfNullOrEmpty();
+
+        var products = await GetProductByNameAsync(name);
+        
+        if (products != null)
+        {
+            throw new DuplicateNameException($"Product {name} exist in database.");
+        }
+    }
+
+    private async Task<Product?> GetProductByNameAsync(string name)
+    {
+        name.ThrowIfNullOrEmpty();
+
+        var products = await this.dbConnection.QuerySingleOrDefaultAsync<Product>(PostSqlQuery.GET_PRODUCT_BY_NAME, new { Name = name });
+
+        return products;
     }
 }

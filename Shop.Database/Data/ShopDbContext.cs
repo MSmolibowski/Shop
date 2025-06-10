@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Shop.Database.Data.Entities;
+using System.Reflection.Emit;
 
 namespace Shop.Database.Data;
 public class ShopDbContext : DbContext
@@ -26,5 +27,14 @@ public class ShopDbContext : DbContext
                     j.HasKey("product_id", "category_id");
                     j.ToTable("products_categories");
                 });
+
+        builder.Entity<Product>(entity =>
+        {
+            entity.Property(p => p.Name)
+                  .IsRequired();
+
+            entity.HasIndex(p => p.Name)
+                  .IsUnique();
+        });
     }
 }

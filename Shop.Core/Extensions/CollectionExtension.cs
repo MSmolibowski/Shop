@@ -1,10 +1,11 @@
 ﻿namespace Shop.Core.Extensions;
 public static class CollectionExtension
 {
-    public static void ThrowIfNullOrEmpty<T>(this List<int> list) 
-        where T : class
+    public static void ThrowIfNullOrEmpty(this IEnumerable<int> list) 
     {
-        if (list == null) throw new ArgumentNullException("Value is null.");
-        if (list.Count == 0) throw new ArgumentException("Empty collection.");
+        if (list == null || list.Count() == 0)
+        {
+            throw new ArgumentNullException("Collection cannot be null or empty.");
+        }        
     }
 }

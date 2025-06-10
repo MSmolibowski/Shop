@@ -5,7 +5,7 @@ public static class StringExtension
     {
         if (string.IsNullOrEmpty(value))
         {
-            throw new ArgumentNullException("Argument cannot be null or empty.");
+            throw new ArgumentNullException();
         }
     }
 }
