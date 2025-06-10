@@ -44,10 +44,10 @@ public class ExceptionHandlingMiddleware
             this.logger.LogError(ex, "DuplicateNameException");
             await WriteErrorResponseAsync(context, StatusCodes.Status409Conflict, ex.Message);
         }
-        catch (InvalidOperationException ex)
+        catch (AggregateException ex) when (ex.InnerException is InvalidOperationException)
         {
-            this.logger.LogError(ex, "InvalidOperationException");
-            await WriteErrorResponseAsync(context, StatusCodes.Status409Conflict, ex.Message);
+            this.logger.LogError(ex.InnerException, "InvalidOperationException (wrapped)");
+            await WriteErrorResponseAsync(context, StatusCodes.Status409Conflict, ex.InnerException.Message);
         }
         catch (Exception ex)
         {

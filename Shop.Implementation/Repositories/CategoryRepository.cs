@@ -7,7 +7,6 @@ using Shop.Core.Models.Dto;
 using Shop.Core.Models.Entities;
 using Shop.Implementation.Utilities;
 using System.Data;
-using System.Xml.Linq;
 
 namespace Shop.Implementation.Repositories;
 public class CategoryRepository : ICategoryRepository
@@ -35,34 +34,26 @@ public class CategoryRepository : ICategoryRepository
     public async Task<Category> AddCategoryAsync(CategoryDto categoryDto)
     {
         ArgumentNullException.ThrowIfNull(categoryDto, nameof(categoryDto));
-        await CheckIfCategoryExist(categoryDto.Name);
-
-        if (dbConnection.State != ConnectionState.Open)
-        {
-            dbConnection.Open();
-        }
+        await this.dbConnection.EnsureOpenAsync();
+        await this.CheckIfCategoryExist(categoryDto.Name);
 
         var category = await this.dbConnection.QuerySingleAsync<Category>(PostSqlQuery.INSERT_CATEGORY,
                                                                                 new { Name = categoryDto.Name, Description = categoryDto.Description });
   
         return category;
-
     }
 
     public async Task<int> DeleteCategoryAsync(string name)
     {
+        await this.dbConnection.EnsureOpenAsync();
         name.ThrowIfNullOrEmpty();
-        var record = GetCategoryByNameAsync(name);
+        var record = this.GetCategoryByNameAsync(name);
 
         if (record == null) // do Extension method ?
         {
             throw new NotFoundException($"Category: {name}.");
         }
-
-        if (dbConnection.State != ConnectionState.Open) // create extension method
-        {
-            dbConnection.Open();
-        }        
+        await this.CheckIfCategoryProductsExistAsync(name);
 
         var id = await this.dbConnection.ExecuteScalarAsync<int>(PostSqlQuery.DELETE_CATEGORY_BY_NAME, new { Name = name });
 
@@ -71,13 +62,8 @@ public class CategoryRepository : ICategoryRepository
 
     private async Task CheckIfCategoryProductsExistAsync(string categoryName)
     {
+        await this.dbConnection.EnsureOpenAsync();
         categoryName.ThrowIfNullOrEmpty();
-
-        if (dbConnection.State != ConnectionState.Open)
-        {
-            dbConnection.Open();
-        }
-
         var products = await dbConnection.QueryAsync<Product>(PostSqlQuery.GET_PRODUCTS_BY_CATEGORY_NAME,
                                                                 new { CategoryName = categoryName });
 
@@ -89,14 +75,9 @@ public class CategoryRepository : ICategoryRepository
 
     private async Task CheckIfCategoryExist(string categoryName)
     {
+        await this.dbConnection.EnsureOpenAsync();
         categoryName.ThrowIfNullOrEmpty();
-
-        if (dbConnection.State != ConnectionState.Open)
-        {
-            dbConnection.Open();
-        }
-
-        var category = await GetCategoryByNameAsync(categoryName);
+        var category = await this.GetCategoryByNameAsync(categoryName);
 
         if (category != null)
         {
@@ -106,12 +87,8 @@ public class CategoryRepository : ICategoryRepository
 
     private async Task<Category?> GetCategoryByNameAsync(string name)
     {
+        await this.dbConnection.EnsureOpenAsync();
         name.ThrowIfNullOrEmpty();
-
-        if (dbConnection.State != ConnectionState.Open)
-        {
-            dbConnection.Open();
-        }
 
         var category = await this.dbConnection.QuerySingleOrDefaultAsync<Category>(PostSqlQuery.GET_CATEGORY_BY_NAME, new { Name = name });
 
