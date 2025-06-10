@@ -5,13 +5,21 @@ namespace Shop.Web.Controllers;
 
 public class ProductController : Controller
 {
-    private readonly IProductRepository _repo;
-    public ProductController(IProductRepository repo) =>
-      _repo = repo;
+    private readonly IProductRepository productRepository;
+    private readonly ICategoryRepository categoryRepository;
 
+    public ProductController(IProductRepository productRepository, ICategoryRepository categoryRepository)
+    {
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+    }
+
+    // GET: /Product
     public async Task<IActionResult> Index()
     {
-        var products = await _repo.GetAllAsync();
-        return View(products);
+        var products = await this.productRepository.GetAllAsync();
+
+        return View(products); // Product/Index.cshtml
     }
+
 }
