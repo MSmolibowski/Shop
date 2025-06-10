@@ -25,7 +25,6 @@ public static class DataSeeder
             {
                 var prod = new Product
                 {
-                    Id = ps.Id,
                     Name = ps.Name,
                     Description = ps.Description
                 };

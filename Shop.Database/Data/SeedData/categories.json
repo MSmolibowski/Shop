@@ -1,17 +1,17 @@
 ﻿[
   {
     "Id": 1,
-    "Name": "Do czytania",
-    "Description": "Książki, komiksy, e-booki"
+    "Name": "Reading",
+    "Description": "Books, comics, e-books"
   },
   {
     "Id": 2,
-    "Name": "Elektronika",
-    "Description": "Urządzenia elektroniczne"
+    "Name": "Electronics",
+    "Description": "Electronic devices"
   },
   {
     "Id": 3,
-    "Name": "Sport i fitness",
-    "Description": "Sprzęt i akcesoria sportowe"
+    "Name": "Sport",
+    "Description": "Sporting equipment and accessories"
   }
 ]

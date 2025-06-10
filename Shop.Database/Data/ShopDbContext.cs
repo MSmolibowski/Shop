@@ -24,7 +24,7 @@ public class ShopDbContext : DbContext
                 j =>
                 {
                     j.HasKey("product_id", "category_id");
-                    j.ToTable("product_categories");
+                    j.ToTable("products_categories");
                 });
     }
 }
