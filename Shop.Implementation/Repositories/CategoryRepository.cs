@@ -28,6 +28,9 @@ public class CategoryRepository : ICategoryRepository
     public async Task<IEnumerable<string>> GetllAllCategoriesAsync()
     {        
         var categories = await this.dbConnection.QueryAsync<string>(PostSqlQuery.GET_ALL_CATEGORY_NAMES);
+
+        logger.LogInformation("Pulled all categories");
+
         return categories;
     }
 
@@ -39,7 +42,9 @@ public class CategoryRepository : ICategoryRepository
 
         var category = await this.dbConnection.QuerySingleAsync<Category>(PostSqlQuery.INSERT_CATEGORY,
                                                                                 new { Name = categoryDto.Name, Description = categoryDto.Description });
-  
+
+        logger.LogInformation("Added category Id = {Id}, Name = {Name}.", category.Id, category.Name);
+
         return category;
     }
 
@@ -47,15 +52,13 @@ public class CategoryRepository : ICategoryRepository
     {
         await this.dbConnection.EnsureOpenAsync();
         name.ThrowIfNullOrEmpty();
-        var record = this.GetCategoryByNameAsync(name);
-
-        if (record == null) // do Extension method ?
-        {
-            throw new NotFoundException($"Category: {name}.");
-        }
+        _ = await this.GetCategoryByNameAsync(name);                                    
+        
         await this.CheckIfCategoryProductsExistAsync(name);
 
         var id = await this.dbConnection.ExecuteScalarAsync<int>(PostSqlQuery.DELETE_CATEGORY_BY_NAME, new { Name = name });
+
+        logger.LogInformation("Deleted category Id = {Id}, Name = {Name}.", id, name);
 
         return id;
     }
@@ -90,7 +93,10 @@ public class CategoryRepository : ICategoryRepository
         await this.dbConnection.EnsureOpenAsync();
         name.ThrowIfNullOrEmpty();
 
-        var category = await this.dbConnection.QuerySingleOrDefaultAsync<Category>(PostSqlQuery.GET_CATEGORY_BY_NAME, new { Name = name });
+        var category = await this.dbConnection.QuerySingleOrDefaultAsync<Category>(PostSqlQuery.GET_CATEGORY_BY_NAME, new { Name = name })
+                                                ?? throw new NotFoundException($"Category: {name}.");
+
+        logger.LogInformation("Pulled category Id = {Id}, Name = {Name}.", category.Id, category.Name);
 
         return category;
     }

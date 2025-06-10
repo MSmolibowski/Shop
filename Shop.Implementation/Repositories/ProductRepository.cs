@@ -29,6 +29,9 @@ public class ProductRepository : IProductRepository
     public async Task<IEnumerable<Product>> GetAllAsync()
     {
         var products = await this.dbConnection.QueryAsync<Product>(PostSqlQuery.GET_ALL_PRODUCTS);
+
+        logger.LogInformation("Pulled all products.");
+
         return products;
     }
 
@@ -38,6 +41,8 @@ public class ProductRepository : IProductRepository
 
         var products = await dbConnection.QueryAsync<Product>(PostSqlQuery.GET_PRODUCTS_BY_CATEGORY_NAME,
                                                                 new { CategoryName = categoryName });
+
+        logger.LogInformation("Pulled products for category: {CategoryName}", categoryName);
 
         return products;
     }    
@@ -64,8 +69,6 @@ public class ProductRepository : IProductRepository
                                                                     new { CategoryNames = productDto.Categories },
                                                                     transaction);
 
-            categoryIds.ThrowIfNullOrEmpty();
-
             foreach (var catId in categoryIds)
             {
                 await dbConnection.ExecuteAsync(PostSqlQuery.INSERT_MAPPING,
@@ -75,12 +78,16 @@ public class ProductRepository : IProductRepository
 
             transaction.Commit();
 
-            return new Product
+            var product = new Product
             {
                 Id = productId,
                 Name = productDto.Name,
                 Description = productDto.Description,
             };
+
+            logger.LogInformation("Added product Id = {Id}, Name = {Name}.", product.Id, product.Name);
+
+            return product;
         }
         catch
         {
@@ -92,14 +99,12 @@ public class ProductRepository : IProductRepository
     public async Task<int> DeleteProductAsync(string name)
     {
         name.ThrowIfNullOrEmpty();
-        var record = await GetProductByNameAsync(name);
-
-        if (record == null)
-        {
-            throw new NotFoundException($"Product with name: {name}");
-        }
+        await dbConnection.EnsureOpenAsync();
+        _ = await GetProductByNameAsync(name);
 
         var id = await this.dbConnection.ExecuteScalarAsync<int>(PostSqlQuery.DELETE_PRODUCT_BY_NAME, new { Name = name });
+        
+        logger.LogInformation("Deleted product Id = {Id}, Name = {Name}.", id, name);
 
         return id;
     }
@@ -137,7 +142,10 @@ public class ProductRepository : IProductRepository
     {
         name.ThrowIfNullOrEmpty();
 
-        var products = await this.dbConnection.QuerySingleOrDefaultAsync<Product>(PostSqlQuery.GET_PRODUCT_BY_NAME, new { Name = name });
+        var products = await this.dbConnection.QuerySingleOrDefaultAsync<Product>(PostSqlQuery.GET_PRODUCT_BY_NAME, new { Name = name })
+                                                ?? throw new NotFoundException($"Product with name: {name}");
+
+        logger.LogInformation("Pulled product Id = {Id}, Name = {Name}.", products.Id, products.Name);
 
         return products;
     }
