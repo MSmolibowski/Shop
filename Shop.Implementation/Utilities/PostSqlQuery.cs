@@ -36,6 +36,9 @@ public class PostSqlQuery
     //public const string DELETE_PRODUCT_BY_NAME
 
     // Category
+    public const string GET_ALL_CATEGORIES = @"Select id, name, description
+                                                    From category;";
+
     public const string GET_ALL_CATEGORY_NAMES = @"Select name
                                                     From category;";
     

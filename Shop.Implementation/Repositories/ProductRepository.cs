@@ -113,7 +113,7 @@ public class ProductRepository : IProductRepository
     {
         ArgumentNullException.ThrowIfNull(productDto, nameof(productDto));
         
-        var categories = await this.categoryRepository.GetllAllCategoriesAsync()
+        var categories = await this.categoryRepository.GetllAllCategoriesNameAsync()
                             ?? throw new NotFoundException("List of categories.");
 
         foreach (string category in productDto.Categories)

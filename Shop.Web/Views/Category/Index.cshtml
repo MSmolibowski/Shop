@@ -1,7 +1,7 @@
-﻿@model IEnumerable<Shop.Core.Models.Entities.Product>
+﻿@model IEnumerable<Shop.Core.Models.Entities.Category>
 
 @{
-    ViewData["Title"] = "Product List";
+    ViewData["Title"] = "Category List";
 }
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
     <div class="w-75">
@@ -18,16 +18,16 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var product in Model)
+                @foreach (var category in Model)
                 {
                     <tr>
-                        <td>@product.Id</td>
-                        <td>@product.Name</td>
-                        <td>@product.Description</td>
+                        <td>@category.Id</td>
+                        <td>@category.Name</td>
+                        <td>@category.Description</td>
                         <td>
                             <button type="button"
-                                    class="btn btn-outline-danger btn-sm btn-delete-product"
-                                    data-name="@product.Name">
+                                    class="btn btn-outline-danger btn-sm btn-delete-category"
+                                    data-name="@category.Name">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </td>
@@ -42,23 +42,23 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const deleteButtons = document.querySelectorAll('.btn-delete-product');
+            const deleteButtons = document.querySelectorAll('.btn-delete-category');
             deleteButtons.forEach(button => {
                 button.addEventListener('click', async function () {
                     const name = this.dataset.name;
-                    if (!confirm(`Delete product "${name}"?`)) {
+                    if (!confirm(`Delete category "${name}"?`)) {
                         return;
                     }
 
                     try {
-                        const response = await fetch(`/Product/Delete/${encodeURIComponent(name)}`, {
+                        const response = await fetch(`/Category/Delete/${encodeURIComponent(name)}`, {
                             method: 'POST'
                         });
 
                         if (response.ok) {
                             location.reload();
                         } else {
-                            alert('Error deleting product.');
+                            alert('Error deleting category.');
                         }
                     } catch (error) {
                         console.error(error);

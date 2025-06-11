@@ -25,7 +25,7 @@ public class CategoryController : ControllerBase
     [HttpGet("GetAllCategories")]
     public async Task<IActionResult> GetAllCategoriesAsync()
     {
-        var result = await this.categoryRepository.GetllAllCategoriesAsync();
+        var result = await this.categoryRepository.GetllAllCategoriesNameAsync();
 
         return Ok(result);
     }

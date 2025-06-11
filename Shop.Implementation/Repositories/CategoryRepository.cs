@@ -25,11 +25,20 @@ public class CategoryRepository : ICategoryRepository
         this.dbConnection = dbConnection;
     }
 
-    public async Task<IEnumerable<string>> GetllAllCategoriesAsync()
+    public async Task<IEnumerable<Category>> GetllAllCategoriesAsync()
+    {
+        var categories = await this.dbConnection.QueryAsync<Category>(PostSqlQuery.GET_ALL_CATEGORIES);
+
+        logger.LogInformation("Pulled all categories");
+
+        return categories;
+    }
+
+    public async Task<IEnumerable<string>> GetllAllCategoriesNameAsync()
     {        
         var categories = await this.dbConnection.QueryAsync<string>(PostSqlQuery.GET_ALL_CATEGORY_NAMES);
 
-        logger.LogInformation("Pulled all categories");
+        logger.LogInformation("Pulled all categories names");
 
         return categories;
     }
@@ -52,8 +61,9 @@ public class CategoryRepository : ICategoryRepository
     {
         await this.dbConnection.EnsureOpenAsync();
         name.ThrowIfNullOrEmpty();
-        _ = await this.GetCategoryByNameAsync(name);                                    
-        
+        _ = await this.GetCategoryByNameAsync(name) 
+                        ?? throw new NotFoundException($"Category: {name}.");
+
         await this.CheckIfCategoryProductsExistAsync(name);
 
         var id = await this.dbConnection.ExecuteScalarAsync<int>(PostSqlQuery.DELETE_CATEGORY_BY_NAME, new { Name = name });
@@ -93,10 +103,7 @@ public class CategoryRepository : ICategoryRepository
         await this.dbConnection.EnsureOpenAsync();
         name.ThrowIfNullOrEmpty();
 
-        var category = await this.dbConnection.QuerySingleOrDefaultAsync<Category>(PostSqlQuery.GET_CATEGORY_BY_NAME, new { Name = name })
-                                                ?? throw new NotFoundException($"Category: {name}.");
-
-        logger.LogInformation("Pulled category Id = {Id}, Name = {Name}.", category.Id, category.Name);
+        var category = await this.dbConnection.QuerySingleOrDefaultAsync<Category>(PostSqlQuery.GET_CATEGORY_BY_NAME, new { Name = name });
 
         return category;
     }
