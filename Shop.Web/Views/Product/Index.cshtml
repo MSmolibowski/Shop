@@ -159,7 +159,6 @@
                     return;
                 }
 
-                console.log(category)
                 try {
                     const response = await fetch(`/Product/GetProductsByCategory/${encodeURIComponent(category)}`);
                     if (!response.ok) {
