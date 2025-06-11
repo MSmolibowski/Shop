@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Shop.Core.Models.Entities.Product>
+
+<table id="productsTable" class="table table-bordered table-striped text-center">
+    <thead class="table-light">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th style="width: 100px;">Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Id</td>
+                <td>@product.Name</td>
+                <td>@product.Description</td>
+                <td>@string.Join(", ", product.Categories.OrderDescending())</td>
+                <td>
+                    <button type="button"
+                            class="btn btn-outline-danger btn-sm btn-delete-product"
+                            data-name="@product.Name">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

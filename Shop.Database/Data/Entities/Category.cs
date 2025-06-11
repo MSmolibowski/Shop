@@ -1,8 +1,19 @@
-﻿namespace Shop.Database.Data.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Shop.Database.Data.Entities;
+
+[Table("category")]
 public class Category
 {
+    [Column("id")]
     public int Id { get; set; }
-    public string? Name { get; set; } = default!;
+
+    [Column("name")]
+    public string? Name { get; set; } = default!; // make it required in database
+
+    [Column("description")]
     public string? Description { get; set; } = default!;
+
+    [Column("products")]
     public ICollection<Product> Products { get; set; } = new List<Product>();
 }

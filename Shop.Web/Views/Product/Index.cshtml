@@ -1,0 +1,205 @@
+﻿@model IEnumerable<Shop.Core.Models.Entities.Product>
+
+@{
+    ViewData["Title"] = "Product List";
+}
+
+@if (ViewBag.LoadingError != null)
+{
+    <div class="alert alert-danger text-center">@ViewBag.LoadingError</div>
+}
+
+<div class="container">
+    <div class="mx-auto" style="max-width: 900px;">
+
+        <h2 class="mb-3">@ViewData["Title"]</h2>
+        
+        <div class="mb-4">
+            <div class="btn-group" role="group" aria-label="Product actions">
+                <button type="button" class="btn btn-primary btn-sm" id="btnAddProduct" 
+                        data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    <i class="bi bi-plus me-1"></i> Add Product
+                </button>
+                <!-- Future buttons impl.-->
+                <div class="ms-2" style="width: 250px;">
+                    <select id="categorySelect" class="form-select form-select-sm">
+                        <option value="">-- All Categories --</option>
+                        @foreach (var category in ViewBag.Categories as List<string> ?? new())
+                        {
+                            <option value="@category">@category</option>
+                        }
+                    </select>
+                </div>
+            </div>            
+        </div>
+       
+        <div id="productTableContainer">
+            @await Html.PartialAsync("_ProductTablePartial", Model)
+        </div>
+
+    </div>
+</div>
+
+<!-- Add Product Modal tabindex="-1" <- close modal using Esc | Move modal to separate file-->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="addProductForm">
+                    <div class="mb-3">
+                        <label for="productName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="productName" placeholder="Enter product name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="productDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="productDescription" rows="3" placeholder="Enter description"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="productCategories" class="form-label">Categories</label>
+                        <input type="text" class="form-control" id="productCategories" placeholder="Enter categories (comma-separated)">
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" form="addProductForm">Submit</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function initializeDataTable() {
+            const table = $('#productsTable');
+            if ($.fn.dataTable.isDataTable('#productsTable')) {
+                table.DataTable().destroy();
+            }
+
+            table.DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                responsive: true
+            });
+        }
+
+        async function reloadProductTable() {
+            const html = await fetch('/Product/Table').then(r => r.text());
+            document.getElementById('productTableContainer').innerHTML = html;
+            bindDeleteButtons();
+            initializeDataTable();
+        }
+
+        function bindDeleteButtons() {
+            const deleteButtons = document.querySelectorAll('.btn-delete-product');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', async function () {
+                    const name = this.dataset.name;
+                    if (!confirm(`Delete product "${name}"?`)) return;
+
+                    try {
+                        const response = await fetch(`/Product/Delete/${encodeURIComponent(name)}`, {
+                            method: 'POST'
+                        });
+
+                        if (response.ok) {
+                            await reloadProductTable();
+                            showToastSuccess(`Removed product: ${name}`);                            
+                        } else {
+                            const error = await response.text();
+                            showToastError(error.message);
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        showToastError(error.message);
+                    }
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            bindDeleteButtons();
+            initializeDataTable();
+
+            const form = document.getElementById('addProductForm');
+            form?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const name = document.getElementById('productName').value.trim();
+                const description = document.getElementById('productDescription').value.trim();
+                const categories = document.getElementById('productCategories').value
+                    .split(',')
+                    .map(c => c.trim())
+                    .filter(c => c.length > 0);
+
+                const dto = { name, description, categories };
+
+                try {
+                    const response = await fetch('/Product/Create', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dto)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));                        
+                        modal?.hide();
+                        form.reset();
+                        showToastSuccess(`Added product: ${result.name}`);
+
+                        await reloadProductTable();
+                    } else {
+                        const error = await response.json();
+                        showToastError(error.message);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    showToastError(error.message);
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const select = document.getElementById('categorySelect');
+
+            select?.addEventListener('change', async function () {
+                const category = select.value;
+
+                if (category == "") {
+                    await reloadProductTable();
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/Product/GetProductsByCategory/${encodeURIComponent(category)}`);
+                    if (!response.ok) {
+                        throw new Error('Request failed');
+                    }
+
+                    const html = await response.text();
+                    document.getElementById('productTableContainer').innerHTML = html;
+
+                    bindDeleteButtons();
+                    initializeDataTable();
+
+                } catch (error) {
+                    console.error('Error fetching filtered products:', error);
+                    showToastError('Could not load products for selected category.');
+                }
+            });
+        });
+    </script>
+}
