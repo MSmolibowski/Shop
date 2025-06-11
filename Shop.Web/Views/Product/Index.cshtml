@@ -5,16 +5,19 @@
 }
 
 
-<div class="container d-flex justify-content-center align-items-center">
-    <div class="w-75">
+<div class="container">
+    <div class="mx-auto" style="max-width: 900px;">
 
-        <!-- Tytuł + przycisk Add Product Maybe craete .tag for re creating this as header and provide diff name and provide posibility to add more buttons (updated or something)-->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0">@ViewData["Title"]</h2>
-            <button type="button" class="btn btn-primary btn-sm" id="btnAddProduct" 
-                    data-bs-toggle="modal" data-bs-target="#addProductModal">
-                <i class="bi bi-plus me-1"></i> Add Product
-            </button>
+        <h2 class="mb-3">@ViewData["Title"]</h2>
+        
+        <div class="mb-4">
+            <div class="btn-group" role="group" aria-label="Product actions">
+                <button type="button" class="btn btn-primary btn-sm" id="btnAddProduct" 
+                        data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    <i class="bi bi-plus me-1"></i> Add Product
+                </button>
+                <!-- Future buttons impl.-->
+            </div>
         </div>
        
         <div id="productTableContainer">
@@ -123,18 +126,20 @@
                     });
 
                     if (response.ok) {
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
+                        const result = await response.json();
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));                        
                         modal?.hide();
                         form.reset();
+                        showToastSuccess(`Product ${result.name} added`);
 
                         await reloadProductTable(); // odśwież widok
                     } else {
                         const error = await response.json();
-                        alert(`❌ ${error.message}`);
+                        showToastError(`Error: ${error.message}`);
                     }
                 } catch (error) {
                     console.error(error);
-                    alert('Unexpected error during create.');
+                    showToastError(`Error: ${error.message}`);
                 }
             });
         });

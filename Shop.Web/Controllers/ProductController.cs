@@ -33,7 +33,7 @@ public class ProductController : Controller
     public async Task<IActionResult> Create([FromBody] ProductDto productDto)
     {
         var addedProduct = await productRepository.AddProductAsync(productDto);
-        return Ok(addedProduct);
+        return Ok(new { name = addedProduct.Name });
     }
 
     [HttpGet]
