@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Shop.Core.Interfaces;
 using Shop.Core.Models.Dto;
+using Shop.Core.Models.Entities;
 using Shop.Implementation.Repositories;
 
 namespace Shop.Web.Controllers;
@@ -8,21 +9,32 @@ namespace Shop.Web.Controllers;
 [Route("Category")]
 public class CategoryController : Controller
 {
+    private readonly ILogger<CategoryController> logger;
     private readonly ICategoryRepository categoryRepository;
 
-    public CategoryController(ICategoryRepository categoryRepository)
+    public CategoryController(ILogger<CategoryController> logger, ICategoryRepository categoryRepository)
     {
+        ArgumentNullException.ThrowIfNull(logger, nameof(logger));
         ArgumentNullException.ThrowIfNull(categoryRepository, nameof(categoryRepository));
 
+        this.logger = logger;
         this.categoryRepository = categoryRepository;
     }
 
     [HttpGet("")]
     public async Task<IActionResult> Index()
     {
-        var result = await this.categoryRepository.GetllAllCategoriesAsync();
-
-        return View(result);
+        try
+        {
+            var result = await this.categoryRepository.GetllAllCategoriesAsync();
+            return View(result);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Critical error in CategoryController.Index");
+            ViewBag.LoadingError = "Critical error in CategoryController.Index";
+            return View(Enumerable.Empty<Category>());
+        }
     }
 
     [HttpPost("Delete/{categoryName}")]

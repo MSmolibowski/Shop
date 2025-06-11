@@ -1,19 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Shop.Core.Interfaces;
 using Shop.Core.Models.Dto;
+using Shop.Core.Models.Entities;
 
 namespace Shop.Web.Controllers;
 
 public class ProductController : Controller
 {
+    private readonly ILogger<ProductController> logger;
     private readonly IProductRepository productRepository;
     private readonly ICategoryRepository categoryRepository;
 
-    public ProductController(IProductRepository productRepository, ICategoryRepository categoryRepository)
+    public ProductController(ILogger<ProductController> logger, IProductRepository productRepository, ICategoryRepository categoryRepository)
     {
+        ArgumentNullException.ThrowIfNull(logger, nameof(logger));
         ArgumentNullException.ThrowIfNull(productRepository, nameof(productRepository));
         ArgumentNullException.ThrowIfNull(categoryRepository, nameof(categoryRepository));
 
+        this.logger = logger;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
     }
@@ -21,12 +25,21 @@ public class ProductController : Controller
     // GET: /Product
     public async Task<IActionResult> Index( )
     {
-        var categories = await this.categoryRepository.GetllAllCategoriesNameAsync();
-        var products = await this.productRepository.GetAllProductsAsync();
+        try
+        {
+            var categories = await this.categoryRepository.GetllAllCategoriesNameAsync();
+            var products = await this.productRepository.GetAllProductsAsync();
 
-        ViewBag.Categories = categories;
+            ViewBag.Categories = categories;
 
-        return View(products);
+            return View(products);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Critical error in ProductController.Index");
+            ViewBag.LoadingError = "Critical error in ProductController.Index";
+            return View(Enumerable.Empty<Product>());
+        }
     }
 
     [HttpPost("Product/Delete/{productName}")]

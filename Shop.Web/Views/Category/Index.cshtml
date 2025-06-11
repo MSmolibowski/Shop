@@ -3,6 +3,12 @@
 @{
     ViewData["Title"] = "Category List";
 }
+
+@if (ViewBag.LoadingError != null)
+{
+    <div class="alert alert-danger text-center">@ViewBag.LoadingError</div>
+}
+
 <div class="container">
     <div class="mx-auto" style="max-width: 900px;">
 

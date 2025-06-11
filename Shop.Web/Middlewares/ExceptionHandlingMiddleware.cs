@@ -1,5 +1,7 @@
-﻿using Shop.Core.Exceptions;
+﻿using Npgsql;
+using Shop.Core.Exceptions;
 using System.Data;
+using System.Data.Common;
 using System.Text.Json;
 
 namespace Shop.Web.Middlewares;
@@ -49,6 +51,16 @@ public class ExceptionHandlingMiddleware
             this.logger.LogError(ex.InnerException, "InvalidOperationException");
             await WriteErrorResponseAsync(context, StatusCodes.Status409Conflict, ex.InnerException.Message);
         }
+        catch (PostgresException ex)
+        {
+            this.logger.LogError(ex, "Postgres database error");
+            await WriteErrorResponseAsync(context, StatusCodes.Status503ServiceUnavailable, ex.Message);
+        }
+        catch (DbException ex)
+        {
+            this.logger.LogError(ex, "Database connection error");
+            await WriteErrorResponseAsync(context, StatusCodes.Status503ServiceUnavailable, ex.Message);
+        }        
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Unhandled exception");
