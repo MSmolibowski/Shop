@@ -30,19 +30,19 @@ public class ProductRepository : IProductRepository
     {
         var products = await this.dbConnection.QueryAsync<Product>(PostSqlQuery.GET_ALL_PRODUCTS);
 
-        logger.LogInformation("Pulled all products.");
+        logger.LogInformation("Pulled all {Number} products.", products.Count());
 
         return products;
     }
 
     public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(string categoryName)
     {
-        categoryName.ThrowIfNullOrEmpty();
+        categoryName.ThrowIfNullOrEmpty(nameof(categoryName));
 
         var products = await dbConnection.QueryAsync<Product>(PostSqlQuery.GET_PRODUCTS_BY_CATEGORY_NAME,
                                                                 new { CategoryName = categoryName });
 
-        logger.LogInformation("Pulled products for category: {CategoryName}", categoryName);
+        logger.LogInformation("Pulled {Number} products for category: {CategoryName}", products.Count(), categoryName);
 
         return products;
     }    
@@ -98,7 +98,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<int> DeleteProductAsync(string name)
     {
-        name.ThrowIfNullOrEmpty();
+        name.ThrowIfNullOrEmpty(nameof(name));
         await dbConnection.EnsureOpenAsync();
         _ = await GetProductByNameAsync(name)
                     ?? throw new NotFoundException($"Product with name: {name}");
@@ -119,7 +119,7 @@ public class ProductRepository : IProductRepository
 
         foreach (string category in productDto.Categories)
         {
-            category.ThrowIfNullOrEmpty();
+            category.ThrowIfNullOrEmpty(nameof(category));
             if (!categories.Contains(category))
             {
                 throw new ArgumentException($"No category as: {category}.");
@@ -129,7 +129,7 @@ public class ProductRepository : IProductRepository
 
     private async Task CheckIfProductExist(string name)
     {
-        name.ThrowIfNullOrEmpty();
+        name.ThrowIfNullOrEmpty(nameof(name));
 
         var products = await GetProductByNameAsync(name);
         
@@ -141,7 +141,7 @@ public class ProductRepository : IProductRepository
 
     private async Task<Product?> GetProductByNameAsync(string name)
     {
-        name.ThrowIfNullOrEmpty();
+        name.ThrowIfNullOrEmpty(nameof(name));
 
         var products = await this.dbConnection.QuerySingleOrDefaultAsync<Product>(PostSqlQuery.GET_PRODUCT_BY_NAME, new { Name = name });
                                                 

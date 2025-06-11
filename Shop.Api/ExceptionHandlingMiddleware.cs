@@ -52,7 +52,7 @@ public class ExceptionHandlingMiddleware
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Unhandled exception");
-            await WriteErrorResponseAsync(context, StatusCodes.Status500InternalServerError, "Internal server error.");
+            await WriteErrorResponseAsync(context, StatusCodes.Status500InternalServerError, $"Undefined error occuser:.{ex.Message}.");
         }
     }
 

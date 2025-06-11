@@ -7,5 +7,5 @@ public interface ICategoryRepository
     Task<IEnumerable<Category>> GetllAllCategoriesAsync();
     Task<IEnumerable<string>> GetllAllCategoriesNameAsync();
     Task<Category> AddCategoryAsync(CategoryDto category);
-    Task<int> DeleteCategoryAsync(string name);    // maybe create additional method DeleteCategoryWithProductsAsync()
+    Task<int> DeleteCategoryAsync(string name);
 }

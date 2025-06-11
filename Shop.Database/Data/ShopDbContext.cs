@@ -36,5 +36,14 @@ public class ShopDbContext : DbContext
             entity.HasIndex(p => p.Name)
                   .IsUnique();
         });
+
+        builder.Entity<Category>(entity =>
+        {
+            entity.Property(p => p.Name)
+                  .IsRequired();
+
+            entity.HasIndex(p => p.Name)
+                  .IsUnique();
+        });
     }
 }

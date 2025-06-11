@@ -29,16 +29,16 @@ public class CategoryRepository : ICategoryRepository
     {
         var categories = await this.dbConnection.QueryAsync<Category>(PostSqlQuery.GET_ALL_CATEGORIES);
 
-        logger.LogInformation("Pulled all categories");
+        logger.LogInformation("Pulled all {Number} categories", categories.Count());
 
         return categories;
     }
 
-    public async Task<IEnumerable<string>> GetllAllCategoriesNameAsync()
+    public async Task<IEnumerable<string>> GetllAllCategoriesNameAsync() // When many categories use this
     {        
         var categories = await this.dbConnection.QueryAsync<string>(PostSqlQuery.GET_ALL_CATEGORY_NAMES);
 
-        logger.LogInformation("Pulled all categories names");
+        logger.LogInformation("Pulled all {Number} categories names", categories.Count());
 
         return categories;
     }
@@ -60,7 +60,7 @@ public class CategoryRepository : ICategoryRepository
     public async Task<int> DeleteCategoryAsync(string name)
     {
         await this.dbConnection.EnsureOpenAsync();
-        name.ThrowIfNullOrEmpty();
+        name.ThrowIfNullOrEmpty(nameof(name));
         _ = await this.GetCategoryByNameAsync(name) 
                         ?? throw new NotFoundException($"Category: {name}.");
 
@@ -76,7 +76,7 @@ public class CategoryRepository : ICategoryRepository
     private async Task CheckIfCategoryProductsExistAsync(string categoryName)
     {
         await this.dbConnection.EnsureOpenAsync();
-        categoryName.ThrowIfNullOrEmpty();
+        categoryName.ThrowIfNullOrEmpty(nameof(categoryName));
         var products = await dbConnection.QueryAsync<Product>(PostSqlQuery.GET_PRODUCTS_BY_CATEGORY_NAME,
                                                                 new { CategoryName = categoryName });
 
@@ -89,7 +89,7 @@ public class CategoryRepository : ICategoryRepository
     private async Task CheckIfCategoryExist(string categoryName)
     {
         await this.dbConnection.EnsureOpenAsync();
-        categoryName.ThrowIfNullOrEmpty();
+        categoryName.ThrowIfNullOrEmpty(nameof(categoryName));
         var category = await this.GetCategoryByNameAsync(categoryName);
 
         if (category != null)
@@ -101,7 +101,7 @@ public class CategoryRepository : ICategoryRepository
     private async Task<Category?> GetCategoryByNameAsync(string name)
     {
         await this.dbConnection.EnsureOpenAsync();
-        name.ThrowIfNullOrEmpty();
+        name.ThrowIfNullOrEmpty(nameof(name));
 
         var category = await this.dbConnection.QuerySingleOrDefaultAsync<Category>(PostSqlQuery.GET_CATEGORY_BY_NAME, new { Name = name });
 

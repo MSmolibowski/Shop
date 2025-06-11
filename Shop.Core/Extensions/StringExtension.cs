@@ -1,11 +1,11 @@
 ﻿namespace Shop.Core.Extensions;
 public static class StringExtension
 {
-    public static void ThrowIfNullOrEmpty(this string? value)
+    public static void ThrowIfNullOrEmpty(this string? value, string valName)
     {
         if (string.IsNullOrEmpty(value))
         {
-            throw new ArgumentNullException();
+            throw new ArgumentNullException(valName);
         }
     }
 }
