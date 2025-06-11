@@ -27,7 +27,7 @@ public class DeleteProductCommand : IDeleteProductCommand
         name.ThrowIfNullOrEmpty(nameof(name));
         await this.dbConnection.EnsureOpenAsync();
 
-        var product = await this.dbConnection.QuerySingleOrDefaultAsync<Product>(   // validation (if needed in more places move to separate class
+        var product = await this.dbConnection.QuerySingleOrDefaultAsync<Product>(
             PostSqlQuery.GET_PRODUCT_BY_NAME,
             new { Name = name }
         );

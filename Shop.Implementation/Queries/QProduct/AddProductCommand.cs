@@ -77,7 +77,7 @@ public class AddProductCommand : IAddProductCommand
         }
     }
 
-    private async Task CheckIfCategoriesExist(IEnumerable<string> categoryNames)  // check what happend if add prduct with wrong category
+    private async Task CheckIfCategoriesExist(IEnumerable<string> categoryNames)
     {
         ArgumentNullException.ThrowIfNull(categoryNames, nameof(categoryNames));
 
@@ -94,7 +94,7 @@ public class AddProductCommand : IAddProductCommand
         }
     }
 
-    private async Task CheckIfProductExist(string name) // maybe remove ? db has validation for uniq records
+    private async Task CheckIfProductExist(string name)
     {
         name.ThrowIfNullOrEmpty(nameof(name));
 
