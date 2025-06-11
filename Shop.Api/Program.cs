@@ -2,6 +2,7 @@ using Npgsql;
 using Shop.Api;
 using Shop.Core.Interfaces;
 using Shop.Implementation.Repositories;
+using Shop.Web.Extensions;
 using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,8 +15,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IDbConnection>(sp => new NpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddCategoryRepository();
+builder.Services.AddProductRepository();
 
 var app = builder.Build();
 

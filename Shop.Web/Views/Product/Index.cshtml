@@ -4,8 +4,10 @@
     ViewData["Title"] = "Product List";
 }
 
-<div class="container">
-    <div class="mx-auto" style="max-width: 900px;">
+@if (ViewBag.LoadingError != null)
+{
+    <div class="alert alert-danger text-center">@ViewBag.LoadingError</div>
+}
 
 <div class="container">
     <div class="mx-auto" style="max-width: 900px;">
@@ -19,7 +21,16 @@
                     <i class="bi bi-plus me-1"></i> Add Product
                 </button>
                 <!-- Future buttons impl.-->
-            </div>
+                <div class="ms-2" style="width: 250px;">
+                    <select id="categorySelect" class="form-select form-select-sm">
+                        <option value="">-- All Categories --</option>
+                        @foreach (var category in ViewBag.Categories as List<string> ?? new())
+                        {
+                            <option value="@category">@category</option>
+                        }
+                    </select>
+                </div>
+            </div>            
         </div>
        
         <div id="productTableContainer">
@@ -43,7 +54,7 @@
                 <form id="addProductForm">
                     <div class="mb-3">
                         <label for="productName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="productName" placeholder="Enter product name">
+                        <input type="text" class="form-control" id="productName" placeholder="Enter product name" required>
                     </div>
 
                     <div class="mb-3">
@@ -69,10 +80,26 @@
 
 @section Scripts {
     <script>
+        function initializeDataTable() {
+            const table = $('#productsTable');
+            if ($.fn.dataTable.isDataTable('#productsTable')) {
+                table.DataTable().destroy();
+            }
+
+            table.DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                responsive: true
+            });
+        }
+
         async function reloadProductTable() {
-            const html = await fetch('/Product/ProductTable').then(r => r.text());
+            const html = await fetch('/Product/Table').then(r => r.text());
             document.getElementById('productTableContainer').innerHTML = html;
             bindDeleteButtons();
+            initializeDataTable();
         }
 
         function bindDeleteButtons() {
@@ -88,8 +115,10 @@
                         });
 
                         if (response.ok) {
-                            await reloadProductTable();                            
+                            await reloadProductTable();
+                            showToastSuccess(`Removed product: ${name}`);                            
                         } else {
+                            const error = await response.text();
                             showToastError(error.message);
                         }
                     } catch (error) {
@@ -102,6 +131,7 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             bindDeleteButtons();
+            initializeDataTable();
 
             const form = document.getElementById('addProductForm');
             form?.addEventListener('submit', async function (e) {
@@ -138,6 +168,36 @@
                 } catch (error) {
                     console.error(error);
                     showToastError(error.message);
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const select = document.getElementById('categorySelect');
+
+            select?.addEventListener('change', async function () {
+                const category = select.value;
+
+                if (category == "") {
+                    await reloadProductTable();
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/Product/GetProductsByCategory/${encodeURIComponent(category)}`);
+                    if (!response.ok) {
+                        throw new Error('Request failed');
+                    }
+
+                    const html = await response.text();
+                    document.getElementById('productTableContainer').innerHTML = html;
+
+                    bindDeleteButtons();
+                    initializeDataTable();
+
+                } catch (error) {
+                    console.error('Error fetching filtered products:', error);
+                    showToastError('Could not load products for selected category.');
                 }
             });
         });

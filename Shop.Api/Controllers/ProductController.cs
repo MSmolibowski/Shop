@@ -19,7 +19,7 @@ public class ProductController : ControllerBase
     [HttpGet("GetAllProducts")]
     public async Task<IActionResult> GetAllProducts()
     { 
-        var result = await this.productRepository.GetAllAsync();
+        var result = await this.productRepository.GetAllProductsAsync();
         return Ok(result);
     }
 
