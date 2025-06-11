@@ -47,17 +47,12 @@ public class ExceptionHandlingMiddleware
         catch (AggregateException ex) when (ex.InnerException is InvalidOperationException)
         {
             this.logger.LogError(ex.InnerException, "InvalidOperationException");
-            await WriteErrorResponseAsync(context, StatusCodes.Status409Conflict, ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            this.logger.LogError(ex.InnerException, "InvalidOperationException");
-            await WriteErrorResponseAsync(context, StatusCodes.Status409Conflict, ex.Message);
+            await WriteErrorResponseAsync(context, StatusCodes.Status409Conflict, ex.InnerException.Message);
         }
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Unhandled exception");
-            await WriteErrorResponseAsync(context, StatusCodes.Status500InternalServerError, ex.Message);
+            await WriteErrorResponseAsync(context, StatusCodes.Status500InternalServerError, $"Undefined error occuser:.{ex.Message}.");
         }
     }
 

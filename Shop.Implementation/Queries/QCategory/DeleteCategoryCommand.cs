@@ -59,7 +59,7 @@ public class DeleteCategoryCommand : IDeleteCategoryCommand
 
         if (products.Any())
         {
-            throw new ArgumentException($"Products from category {categoryName} still in database. Remove products first.");
+            throw new InvalidOperationException($"Products from category {categoryName} still in database. Remove products first.");
         }
     }
 }

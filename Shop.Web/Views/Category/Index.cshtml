@@ -98,7 +98,7 @@
                         } else {
                             const error = await response.text();
                             console.error(error);
-                            showToastError(error.message);
+                            showToastError(error);
                         }
                     } catch (error) {
                         console.error(error);
@@ -109,7 +109,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Obsługa dodawania kategorii
             const form = document.getElementById('addCategoryForm');
 
             form?.addEventListener('submit', async function (e) {

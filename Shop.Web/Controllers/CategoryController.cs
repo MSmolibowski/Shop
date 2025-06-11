@@ -28,9 +28,7 @@ public class CategoryController : Controller
     [HttpPost("Delete/{categoryName}")]
     public async Task<IActionResult> Delete([FromRoute] string categoryName)
     {
-
         var result = await this.categoryRepository.DeleteCategoryAsync(categoryName);
-
         return Ok();
     }
 
