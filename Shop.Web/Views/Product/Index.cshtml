@@ -129,7 +129,8 @@
 
                         await reloadProductTable(); // odśwież widok
                     } else {
-                        alert('Failed to add product.');
+                        const error = await response.json();
+                        alert(`❌ ${error.message}`);
                     }
                 } catch (error) {
                     console.error(error);
