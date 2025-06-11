@@ -100,7 +100,8 @@ public class ProductRepository : IProductRepository
     {
         name.ThrowIfNullOrEmpty();
         await dbConnection.EnsureOpenAsync();
-        _ = await GetProductByNameAsync(name);
+        _ = await GetProductByNameAsync(name)
+                    ?? throw new NotFoundException($"Product with name: {name}");
 
         var id = await this.dbConnection.ExecuteScalarAsync<int>(PostSqlQuery.DELETE_PRODUCT_BY_NAME, new { Name = name });
         
@@ -142,11 +143,8 @@ public class ProductRepository : IProductRepository
     {
         name.ThrowIfNullOrEmpty();
 
-        var products = await this.dbConnection.QuerySingleOrDefaultAsync<Product>(PostSqlQuery.GET_PRODUCT_BY_NAME, new { Name = name })
-                                                ?? throw new NotFoundException($"Product with name: {name}");
-
-        logger.LogInformation("Pulled product Id = {Id}, Name = {Name}.", products.Id, products.Name);
-
+        var products = await this.dbConnection.QuerySingleOrDefaultAsync<Product>(PostSqlQuery.GET_PRODUCT_BY_NAME, new { Name = name });
+                                                
         return products;
     }
 }
