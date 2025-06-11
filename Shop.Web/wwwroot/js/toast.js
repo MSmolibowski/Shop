@@ -39,17 +39,17 @@
 };
 
 window.showToastSuccess = function (message, delay = 3000) {
-    window.showToast(message, 'success', delay);
+    window.showToast(`Success! ${message}`, 'success', delay);
 };
 
 window.showToastError = function (message, delay = 3000) {
-    window.showToast(message, 'danger', delay);
+    window.showToast(`Error! ${message}`, 'danger', delay);
 };
 
 window.showToastWarning = function (message, delay = 3000) {
-    window.showToast(message, 'warning', delay);
+    window.showToast(`Warrning! ${message}`, 'warning', delay);
 };
 
 window.showToastInfo = function (message, delay = 3000) {
-    window.showToast(message, 'info', delay);
+    window.showToast(`Info! ${message}`, 'info', delay);
 };

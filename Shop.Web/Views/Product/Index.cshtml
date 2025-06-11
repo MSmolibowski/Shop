@@ -67,14 +67,12 @@
 
 @section Scripts {
     <script>
-        // ✅ Pobiera najnowszą tabelę z serwera i przypina eventy ponownie
         async function reloadProductTable() {
             const html = await fetch('/Product/ProductTable').then(r => r.text());
             document.getElementById('productTableContainer').innerHTML = html;
-            bindDeleteButtons(); // ponownie przypnij clicki
+            bindDeleteButtons();
         }
 
-        // ✅ Obsługuje kliknięcia przycisków Delete
         function bindDeleteButtons() {
             const deleteButtons = document.querySelectorAll('.btn-delete-product');
             deleteButtons.forEach(button => {
@@ -88,21 +86,19 @@
                         });
 
                         if (response.ok) {
-                            await reloadProductTable(); // odśwież tabelę po usunięciu
+                            await reloadProductTable();                            
                         } else {
-                            alert("Error deleting product.");
+                            showToastError(error.message);
                         }
                     } catch (error) {
                         console.error(error);
-                        alert("Unexpected error.");
+                        showToastError(error.message);
                     }
                 });
             });
         }
 
-        // ✅ Obsługuje dodanie nowego produktu z formularza modalnego
         document.addEventListener('DOMContentLoaded', function () {
-            // przypnij delete'y po załadowaniu
             bindDeleteButtons();
 
             const form = document.getElementById('addProductForm');
@@ -130,16 +126,16 @@
                         const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));                        
                         modal?.hide();
                         form.reset();
-                        showToastSuccess(`Product ${result.name} added`);
+                        showToastSuccess(`Added product: ${result.name}`);
 
-                        await reloadProductTable(); // odśwież widok
+                        await reloadProductTable();
                     } else {
                         const error = await response.json();
-                        showToastError(`Error: ${error.message}`);
+                        showToastError(error.message);
                     }
                 } catch (error) {
                     console.error(error);
-                    showToastError(`Error: ${error.message}`);
+                    showToastError(error.message);
                 }
             });
         });
