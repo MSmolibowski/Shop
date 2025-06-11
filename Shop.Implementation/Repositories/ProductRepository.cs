@@ -27,7 +27,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<IEnumerable<Product>> GetAllProductsAsync()
     {
-        return await this.getAllProductsQuery.ExecuteAsync(); //Kompilator i tak zrobi await tam, gdzie trzeba — o ile metoda wywołująca używa await. Nie potrzeba await i async ??
+        return await this.getAllProductsQuery.ExecuteAsync();
     }
 
     public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(string categoryName)

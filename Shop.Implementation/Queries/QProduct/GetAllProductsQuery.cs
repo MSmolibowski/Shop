@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
+using Shop.Core.Extensions;
 using Shop.Core.Interfaces.IProduct;
 using Shop.Core.Models.Entities;
 using Shop.Implementation.Utilities;
@@ -22,18 +23,11 @@ public class GetAllProductsQuery : IGetAllProductsQuery
 
     public async Task<IEnumerable<Product>> ExecuteAsync()
     {
+        await this.dbConnection.EnsureOpenAsync();
 
-        try
-        {
-            var products = await this.dbConnection.QueryAsync<Product>(PostSqlQuery.GET_ALL_PRODUCTS_WITH_CATEGORIES);
-            this.logger.LogInformation("Pulled all {Number} products.", products.Count());
+        var products = await this.dbConnection.QueryAsync<Product>(PostSqlQuery.GET_ALL_PRODUCTS_WITH_CATEGORIES);
+        this.logger.LogInformation("Pulled all {Number} products.", products.Count());
 
-            return products;
-        }
-        catch(Exception ex)
-        {
-            this.logger.LogError(ex, "Error while getting products with categories.");
-            return Enumerable.Empty<Product>(); // do everywhere
-        }
+        return products;
     }
 }

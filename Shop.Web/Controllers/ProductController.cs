@@ -5,6 +5,7 @@ using Shop.Core.Models.Entities;
 
 namespace Shop.Web.Controllers;
 
+[Route("Product")]
 public class ProductController : Controller
 {
     private readonly ILogger<ProductController> logger;
@@ -22,8 +23,8 @@ public class ProductController : Controller
         this.categoryRepository = categoryRepository;
     }
 
-    // GET: /Product
-    public async Task<IActionResult> Index( )
+    [HttpGet("")]
+    public async Task<IActionResult> Index()
     {
         try
         {
@@ -42,35 +43,35 @@ public class ProductController : Controller
         }
     }
 
-    [HttpPost("Product/Delete/{productName}")]
+    [HttpPost("Delete/{productName}")]
     public async Task<IActionResult> Delete([FromRoute] string productName)
     {
         await this.productRepository.DeleteProductAsync(productName);
         return RedirectToAction("Index");
     }
 
-    [HttpPost]
+    [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] ProductDto productDto)
     {
         var addedProduct = await productRepository.AddProductAsync(productDto);
         return Ok(new { name = addedProduct.Name });
     }
 
-    [HttpGet]
+    [HttpGet("Table")]
     public async Task<IActionResult> ProductTable()
     {
         var products = await productRepository.GetAllProductsAsync();
         return PartialView("_ProductTablePartial", products.OrderBy(x => x.Id));
     }
 
-    [HttpGet]
+    [HttpGet("GetCategoryList")]
     public async Task<IActionResult> GetCategoryList()
     {
         var categories = await this.categoryRepository.GetllAllCategoriesNameAsync();
         return Json(categories);
     }
 
-    [HttpGet("Product/GetProductsByCategory/{categoryName}")]
+    [HttpGet("GetProductsByCategory/{categoryName}")]
     public async Task<IActionResult> GetProductsByCategory([FromRoute] string categoryName)
     {
         var products = await this.productRepository.GetProductsByCategoryAsync(categoryName);

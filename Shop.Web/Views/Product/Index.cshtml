@@ -96,7 +96,7 @@
         }
 
         async function reloadProductTable() {
-            const html = await fetch('/Product/ProductTable').then(r => r.text());
+            const html = await fetch('/Product/Table').then(r => r.text());
             document.getElementById('productTableContainer').innerHTML = html;
             bindDeleteButtons();
             initializeDataTable();

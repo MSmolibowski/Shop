@@ -2,7 +2,6 @@
 using Shop.Core.Interfaces;
 using Shop.Core.Models.Dto;
 using Shop.Core.Models.Entities;
-using Shop.Implementation.Repositories;
 
 namespace Shop.Web.Controllers;
 

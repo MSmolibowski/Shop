@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Extensions.Logging;
+using Shop.Core.Extensions;
 using Shop.Core.Interfaces.ICategory;
 using Shop.Implementation.Utilities;
 using System.Data;
@@ -21,6 +22,8 @@ public class GetAllCategoryNamesQuery : IGetAllCategoryNamesQuery
 
     public async Task<IEnumerable<string>> ExecuteAsync()
     {
+        await this.dbConnection.EnsureOpenAsync();
+
         var categories = await this.dbConnection.QueryAsync<string>(PostSqlQuery.GET_ALL_CATEGORY_NAMES);
         this.logger.LogInformation("Pulled all {Number} category names", categories.Count());
 
