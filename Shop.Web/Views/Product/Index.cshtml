@@ -78,7 +78,7 @@
         function initializeDataTable() {
             const table = $('#productsTable');
             if ($.fn.dataTable.isDataTable('#productsTable')) {
-                table.DataTable().destroy(); // zniszcz stare instancje
+                table.DataTable().destroy();
             }
 
             table.DataTable({
@@ -110,7 +110,8 @@
                         });
 
                         if (response.ok) {
-                            await reloadProductTable();                            
+                            await reloadProductTable();
+                            showToastSuccess(`Removed product: ${name}`);                            
                         } else {
                             showToastError(error.message);
                         }

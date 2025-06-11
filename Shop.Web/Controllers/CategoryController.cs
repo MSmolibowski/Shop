@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Shop.Core.Interfaces;
+using Shop.Core.Models.Dto;
+using Shop.Implementation.Repositories;
 
 namespace Shop.Web.Controllers;
+
+[Route("Category")]
 public class CategoryController : Controller
 {
     private readonly ICategoryRepository categoryRepository;
@@ -13,6 +17,7 @@ public class CategoryController : Controller
         this.categoryRepository = categoryRepository;
     }
 
+    [HttpGet("")]
     public async Task<IActionResult> Index()
     {
         var result = await this.categoryRepository.GetllAllCategoriesAsync();
@@ -20,19 +25,27 @@ public class CategoryController : Controller
         return View(result);
     }
 
-    [HttpPost("Category/Delete/{categoryName}")]
+    [HttpPost("Delete/{categoryName}")]
     public async Task<IActionResult> Delete([FromRoute] string categoryName)
     {
-        try
-        {
-            await this.categoryRepository.DeleteCategoryAsync(categoryName);
 
-            return RedirectToAction("Index");
-        }
-        catch (Exception ex)
-        {
-            //this.logger.LogError($"Error occured: {ex.Message}");
-            throw new Exception(ex.Message);
-        }
+        var result = await this.categoryRepository.DeleteCategoryAsync(categoryName);
+
+        return Ok();
+    }
+
+    [HttpGet("Table")]
+    public async Task<IActionResult> CategoryTable()
+    {
+        var result = await this.categoryRepository.GetllAllCategoriesAsync();
+        return PartialView("_CategoryTablePartial", result);
+    }
+
+    [HttpPost("Create")]
+    public async Task<IActionResult> Create([FromBody] CategoryDto categoryDto)
+    {
+        var result = await this.categoryRepository.AddCategoryAsync(categoryDto);
+        return Ok(new { name = result.Name });
     }
 }
+
