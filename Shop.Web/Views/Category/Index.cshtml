@@ -1,0 +1,67 @@
+﻿@model IEnumerable<Shop.Core.Models.Entities.Category>
+
+@{
+    ViewData["Title"] = "Category List";
+}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="w-75">
+        <table class="table table-bordered table-striped text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th style="width: 100px;">Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var category in Model)
+                {
+                    <tr>
+                        <td>@category.Id</td>
+                        <td>@category.Name</td>
+                        <td>@category.Description</td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-outline-danger btn-sm btn-delete-category"
+                                    data-name="@category.Name">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const deleteButtons = document.querySelectorAll('.btn-delete-category');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', async function () {
+                    const name = this.dataset.name;
+                    if (!confirm(`Delete category "${name}"?`)) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/Category/Delete/${encodeURIComponent(name)}`, {
+                            method: 'POST'
+                        });
+
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert('Error deleting category.');
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        alert('Unexpected error.');
+                    }
+                });
+            });
+        });
+    </script>
+}

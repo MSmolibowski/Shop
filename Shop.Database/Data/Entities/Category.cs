@@ -9,7 +9,7 @@ public class Category
     public int Id { get; set; }
 
     [Column("name")]
-    public string? Name { get; set; } = default!;
+    public string? Name { get; set; } = default!; // make it required in database
 
     [Column("description")]
     public string? Description { get; set; } = default!;
