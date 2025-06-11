@@ -17,4 +17,8 @@
 	  <ProjectReference Include="..\Shop.Core\Shop.Core.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+  <AssemblyName>Shop.Web</AssemblyName> 
+</PropertyGroup>
+
 </Project>

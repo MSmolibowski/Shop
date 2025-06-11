@@ -1,0 +1,12 @@
+# .dockerignore
+
+bin/
+obj/
+out/
+.vs/
+*.user
+*.suo
+*.db
+*.log
+Dockerfile
+docker-compose.yml
