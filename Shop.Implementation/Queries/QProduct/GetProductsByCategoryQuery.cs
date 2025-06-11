@@ -26,7 +26,7 @@ public class GetProductsByCategoryQuery : IGetProductsByCategoryQuery
         categoryName.ThrowIfNullOrEmpty(nameof(categoryName));
 
         var products = await this.dbConnection.QueryAsync<Product>(
-            PostSqlQuery.GET_PRODUCTS_BY_CATEGORY_NAME,
+            PostSqlQuery.GET_PRODUCTS_BY_CATEGORY_NAME_WITH_CATEGORIES,
             new { CategoryName = categoryName }
         );
 

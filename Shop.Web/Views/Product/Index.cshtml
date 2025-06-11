@@ -7,9 +7,6 @@
 <div class="container">
     <div class="mx-auto" style="max-width: 900px;">
 
-<div class="container">
-    <div class="mx-auto" style="max-width: 900px;">
-
         <h2 class="mb-3">@ViewData["Title"]</h2>
         
         <div class="mb-4">
@@ -19,7 +16,16 @@
                     <i class="bi bi-plus me-1"></i> Add Product
                 </button>
                 <!-- Future buttons impl.-->
-            </div>
+                <div class="ms-2" style="width: 250px;">
+                    <select id="categorySelect" class="form-select form-select-sm">
+                        <option value="">-- All Categories --</option>
+                        @foreach (var category in ViewBag.Categories as List<string> ?? new())
+                        {
+                            <option value="@category">@category</option>
+                        }
+                    </select>
+                </div>
+            </div>            
         </div>
        
         <div id="productTableContainer">
@@ -138,6 +144,36 @@
                 } catch (error) {
                     console.error(error);
                     showToastError(error.message);
+                }
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const select = document.getElementById('categorySelect');
+
+            select?.addEventListener('change', async function () {
+                const category = select.value;
+
+                if (category == "") {
+                    await reloadProductTable();
+                    return;
+                }
+
+                console.log(category)
+                try {
+                    const response = await fetch(`/Product/GetProductsByCategory/${encodeURIComponent(category)}`);
+                    if (!response.ok) {
+                        throw new Error('Request failed');
+                    }
+
+                    const html = await response.text();
+                    document.getElementById('productTableContainer').innerHTML = html;
+
+                    bindDeleteButtons();
+
+                } catch (error) {
+                    console.error('Error fetching filtered products:', error);
+                    showToastError('Could not load products for selected category.');
                 }
             });
         });

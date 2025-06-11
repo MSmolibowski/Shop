@@ -6,6 +6,7 @@
             <th>Id</th>
             <th>Name</th>
             <th>Description</th>
+            <th>Category</th>
             <th style="width: 100px;">Delete</th>
         </tr>
     </thead>
@@ -16,6 +17,7 @@
                 <td>@product.Id</td>
                 <td>@product.Name</td>
                 <td>@product.Description</td>
+                <td>@string.Join(", ", product.Categories.OrderDescending())</td>
                 <td>
                     <button type="button"
                             class="btn btn-outline-danger btn-sm btn-delete-product"

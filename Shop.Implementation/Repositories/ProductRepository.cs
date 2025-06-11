@@ -25,9 +25,9 @@ public class ProductRepository : IProductRepository
         this.deleteProductCommand = deleteProductCommand ?? throw new ArgumentNullException(nameof(deleteProductCommand));
     }
 
-    public async Task<IEnumerable<Product>> GetAllAsync()
+    public async Task<IEnumerable<Product>> GetAllProductsAsync()
     {
-        return await this.getAllProductsQuery.ExecuteAsync();
+        return await this.getAllProductsQuery.ExecuteAsync(); //Kompilator i tak zrobi await tam, gdzie trzeba — o ile metoda wywołująca używa await. Nie potrzeba await i async ??
     }
 
     public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(string categoryName)

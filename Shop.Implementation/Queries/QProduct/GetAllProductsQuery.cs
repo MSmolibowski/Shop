@@ -22,9 +22,18 @@ public class GetAllProductsQuery : IGetAllProductsQuery
 
     public async Task<IEnumerable<Product>> ExecuteAsync()
     {
-        var products = await this.dbConnection.QueryAsync<Product>(PostSqlQuery.GET_ALL_PRODUCTS);
-        this.logger.LogInformation("Pulled all {Number} products.", products.Count());
 
-        return products;
+        try
+        {
+            var products = await this.dbConnection.QueryAsync<Product>(PostSqlQuery.GET_ALL_PRODUCTS_WITH_CATEGORIES);
+            this.logger.LogInformation("Pulled all {Number} products.", products.Count());
+
+            return products;
+        }
+        catch(Exception ex)
+        {
+            this.logger.LogError(ex, "Error while getting products with categories.");
+            return Enumerable.Empty<Product>(); // do everywhere
+        }
     }
 }

@@ -7,19 +7,26 @@ namespace Shop.Web.Controllers;
 public class ProductController : Controller
 {
     private readonly IProductRepository productRepository;
+    private readonly ICategoryRepository categoryRepository;
 
-    public ProductController(IProductRepository productRepository)
+    public ProductController(IProductRepository productRepository, ICategoryRepository categoryRepository)
     {
         ArgumentNullException.ThrowIfNull(productRepository, nameof(productRepository));
+        ArgumentNullException.ThrowIfNull(categoryRepository, nameof(categoryRepository));
 
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     // GET: /Product
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index( )
     {
-        var products = await this.productRepository.GetAllAsync();
-        return View(products); // Product/Index.cshtml
+        var categories = await this.categoryRepository.GetllAllCategoriesNameAsync();
+        var products = await this.productRepository.GetAllProductsAsync();
+
+        ViewBag.Categories = categories;
+
+        return View(products);
     }
 
     [HttpPost("Product/Delete/{productName}")]
@@ -39,7 +46,21 @@ public class ProductController : Controller
     [HttpGet]
     public async Task<IActionResult> ProductTable()
     {
-        var products = await productRepository.GetAllAsync();
-        return PartialView("_ProductTablePartial", products);
+        var products = await productRepository.GetAllProductsAsync();
+        return PartialView("_ProductTablePartial", products.OrderBy(x => x.Id));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetCategoryList()
+    {
+        var categories = await this.categoryRepository.GetllAllCategoriesNameAsync();
+        return Json(categories);
+    }
+
+    [HttpGet("Product/GetProductsByCategory/{categoryName}")]
+    public async Task<IActionResult> GetProductsByCategory([FromRoute] string categoryName)
+    {
+        var products = await this.productRepository.GetProductsByCategoryAsync(categoryName);
+        return PartialView("_ProductTablePartial", products.OrderBy(x => x.Id));
     }
 }
