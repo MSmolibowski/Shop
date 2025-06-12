@@ -1,9 +1,17 @@
 using Npgsql;
+using Serilog;
 using Shop.Web.Extensions;
 using Shop.Web.Middlewares;
 using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration)
+                                        .Enrich.FromLogContext().CreateLogger();
+
+// Use Serilog instead of default logging
+builder.Host.UseSerilog();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
