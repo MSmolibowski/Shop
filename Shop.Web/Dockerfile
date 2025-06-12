@@ -1,29 +1,41 @@
+# Etap 1: build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY Shop.Web/Shop.Web.csproj              Shop.Web/
-COPY Shop.Core/Shop.Core.csproj            Shop.Core/
-COPY Shop.Implementation/Shop.Implementation.csproj  Shop.Implementation/
+# Instalacja narzędzia EF
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"
 
-RUN dotnet restore Shop.Web/Shop.Web.csproj
+COPY Shop.sln ./
+COPY Shop.Web/Shop.Web.csproj Shop.Web/
+COPY Shop.Database/Shop.Database.csproj Shop.Database/
+COPY Shop.Core/Shop.Core.csproj Shop.Core/
+COPY Shop.Implementation/Shop.Implementation.csproj Shop.Implementation/
 
-COPY Shop.Web/       Shop.Web/
-COPY Shop.Core/      Shop.Core/
+RUN dotnet restore
+
+COPY Shop.Web/ Shop.Web/
+COPY Shop.Database/ Shop.Database/
+COPY Shop.Core/ Shop.Core/
 COPY Shop.Implementation/ Shop.Implementation/
 
 WORKDIR /src/Shop.Web
-RUN dotnet publish Shop.Web.csproj -c Release -o /app/publish
+RUN dotnet publish -c Release -o /app/publish
 
-# RUN cp /src/Shop.Implementation/appsettings.json /app/publish/ || echo "No Shop/appsettings.json" \
-#  && cp /src/Shop.Implementation/appsettings.Development.json /app/publish/ || echo "No Shop/appsettings.Development.json"
-
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+# Etap 2: runtime
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS runtime
 WORKDIR /app
 
-COPY --from=build /app/publish .
+# Potrzebny bash (do uruchomienia entrypoint.sh)
+RUN apt-get update && apt-get install -y bash
 
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+# Pliki aplikacji
+COPY --from=build /app/publish ./
+COPY --from=build /src/Shop.Web /app
+COPY --from=build /src/Shop.Database /app/Shop.Database
 
-ENTRYPOINT ["dotnet", "Shop.Web.dll"]
+# Entrypoint
+COPY Shop.Web/entrypoint.sh .
+RUN chmod +x ./entrypoint.sh
+
+ENTRYPOINT ["./entrypoint.sh"]

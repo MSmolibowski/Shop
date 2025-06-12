@@ -1,15 +1,42 @@
 # docker-compose.yml
 
+# version: "3.9"
+
+# services:
+#   shop-web:
+#     build:
+#       context: .
+#       dockerfile: Shop.Web/Dockerfile
+#     ports:
+#       - "8080:8080"
+
 version: "3.9"
 
 services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop
+      POSTGRES_DB: shopdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   shop-web:
     build:
       context: .
       dockerfile: Shop.Web/Dockerfile
     ports:
       - "8080:8080"
-    # volumes:
-    #   - ./Shop.Web:/app:ro
-    # environment:
-    #   - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=shopdb;Username=shop;Password=shop
+
+
+volumes:
+  pgdata:

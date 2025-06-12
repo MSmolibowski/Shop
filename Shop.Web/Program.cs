@@ -5,6 +5,9 @@ using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.json")
+                        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
