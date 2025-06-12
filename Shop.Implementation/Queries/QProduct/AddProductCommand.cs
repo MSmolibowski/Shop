@@ -80,6 +80,7 @@ public class AddProductCommand : IAddProductCommand
     private async Task CheckIfCategoriesExist(IEnumerable<string> categoryNames)
     {
         ArgumentNullException.ThrowIfNull(categoryNames, nameof(categoryNames));
+        categoryNames.ThrowIfNullOrEmpty();
 
         var existingCategories = await this.dbConnection.QueryAsync<string>(PostSqlQuery.GET_ALL_CATEGORY_NAMES)
                                                             ?? throw new NotFoundException("List of categories.");
