@@ -8,4 +8,12 @@ public static class CollectionExtension
             throw new ArgumentNullException("Collection cannot be null or empty.");
         }        
     }
+
+    public static void ThrowIfNullOrEmpty(this IEnumerable<string> list)
+    {
+        if (list == null || list.Count() == 0)
+        {
+            throw new ArgumentNullException("Collection cannot be null or empty.");
+        }
+    }
 }
